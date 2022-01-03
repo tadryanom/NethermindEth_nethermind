@@ -29,11 +29,13 @@ using Nethermind.Config;
 using Nethermind.Core;
 using Nethermind.Core.Extensions;
 using Nethermind.Evm.Tracing;
+using Nethermind.Init.Steps;
 using Nethermind.Logging;
 using Nethermind.Serialization.Rlp;
 
 namespace Nethermind.Hive
 {
+    [RunnerStepDependencies(typeof(ReviewBlockTree))]
     public class HiveRunner
     {
         private readonly IBlockTree _blockTree;
