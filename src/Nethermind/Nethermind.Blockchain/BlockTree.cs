@@ -17,6 +17,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -1546,11 +1547,13 @@ namespace Nethermind.Blockchain
 
         internal void BlockAcceptingNewBlocks()
         {
+            if (_logger.IsInfo) _logger.Info($"Blocking access to BlockTree. Blockades count: {_canAcceptNewBlocksCounter}; StackTrace: {new StackTrace()}");
             Interlocked.Increment(ref _canAcceptNewBlocksCounter);
         }
 
         internal void ReleaseAcceptingNewBlocks()
         {
+            if (_logger.IsInfo) _logger.Info($"Releasing access to BlockTree. Blockades count: {_canAcceptNewBlocksCounter}; StackTrace: {new StackTrace()}");
             Interlocked.Decrement(ref _canAcceptNewBlocksCounter);
         }
 
