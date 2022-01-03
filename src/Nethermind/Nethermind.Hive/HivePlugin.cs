@@ -8,10 +8,12 @@ using Nethermind.Blockchain.Processing;
 using Nethermind.Blockchain.Rewards;
 using Nethermind.Blockchain.Tracing;
 using Nethermind.Db;
+using Nethermind.Init.Steps;
 using Nethermind.Logging;
 
 namespace Nethermind.Hive
 {
+    [RunnerStepDependencies(typeof(ReviewBlockTree))]
     public class HivePlugin : INethermindPlugin
     {
         private INethermindApi _api = null!;
