@@ -31,6 +31,7 @@ using Nethermind.Evm.Precompiles.Bls.Shamatar;
 using Nethermind.Evm.Precompiles.Snarks.Shamatar;
 using Nethermind.Evm.Tracing;
 using Nethermind.Logging;
+using Nethermind.Specs.Forks;
 using Nethermind.State;
 
 [assembly: InternalsVisibleTo("Nethermind.Evm.Test")]
@@ -101,6 +102,17 @@ namespace Nethermind.Evm
             _worldState = worldState;
             
             IReleaseSpec spec = _specProvider.GetSpec(state.Env.TxExecutionContext.Header.Number);
+            _logger.Info($"SPEC in use: {spec.Name}, eip1283: {spec.IsEip1283Enabled}");
+            if (spec.Equals(ConstantinopleFix.Instance))
+            {
+                bool shouldBeUnfixedConstantinople = Environment.GetEnvironmentVariable("HIVE_FORK_PETERSBURG")?.ToLowerInvariant() == "true";
+                _logger.Info($"should be constantinople: {shouldBeUnfixedConstantinople}");
+                if (shouldBeUnfixedConstantinople)
+                {
+                    spec = Constantinople.Instance;
+                }
+            }
+            _logger.Info($"now SPEC in use: {spec.Name}, eip1283: {spec.IsEip1283Enabled}");
             EvmState currentState = state;
             byte[] previousCallResult = null;
             ZeroPaddedSpan previousCallOutput = ZeroPaddedSpan.Empty;
