@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Nethermind.Blockchain.Find;
 using Nethermind.Blockchain.Synchronization;
 using Nethermind.Core;
@@ -96,6 +97,8 @@ namespace Nethermind.Blockchain
 
         private int _canAcceptNewBlocksCounter;
         public bool CanAcceptNewBlocks => _canAcceptNewBlocksCounter == 0;
+
+        private TaskCompletionSource<bool>? _taskCompletionSource;
 
         public BlockTree(
             IDbProvider? dbProvider,
@@ -583,6 +586,12 @@ namespace Nethermind.Blockchain
         public AddBlockResult SuggestHeader(BlockHeader header)
         {
             return Suggest(null, header);
+        }
+        
+        public async Task<AddBlockResult> SuggestBlockAsync(Block block, bool shouldProcess = true, bool? setAsMain = null)
+        {
+            await WaitForReadinessToAcceptNewBlock;
+            return SuggestBlock(block, shouldProcess, setAsMain);
         }
 
         public AddBlockResult SuggestBlock(Block block, bool shouldProcess = true, bool? setAsMain = null)
@@ -1547,6 +1556,10 @@ namespace Nethermind.Blockchain
 
         internal void BlockAcceptingNewBlocks()
         {
+            if (CanAcceptNewBlocks)
+            {
+                _taskCompletionSource = new TaskCompletionSource<bool>();
+            }
             if (_logger.IsInfo) _logger.Info($"Blocking access to BlockTree. Blockades count: {_canAcceptNewBlocksCounter}; StackTrace: {new StackTrace()}");
             Interlocked.Increment(ref _canAcceptNewBlocksCounter);
         }
@@ -1555,7 +1568,14 @@ namespace Nethermind.Blockchain
         {
             if (_logger.IsInfo) _logger.Info($"Releasing access to BlockTree. Blockades count: {_canAcceptNewBlocksCounter}; StackTrace: {new StackTrace()}");
             Interlocked.Decrement(ref _canAcceptNewBlocksCounter);
+            if (CanAcceptNewBlocks)
+            {
+                _taskCompletionSource.SetResult(true);
+                _taskCompletionSource = null;
+            }
         }
+
+        private Task WaitForReadinessToAcceptNewBlock => _taskCompletionSource?.Task ?? Task.CompletedTask;
 
         public void SavePruningReorganizationBoundary(long blockNumber)
         {
