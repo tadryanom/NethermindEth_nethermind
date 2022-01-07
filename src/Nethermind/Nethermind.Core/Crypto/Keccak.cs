@@ -71,6 +71,33 @@ namespace Nethermind.Core.Crypto
             Size - 
             MemorySizes.SmallObjectFreeDataSize;
 
+        /// <returns>
+        ///     <string>0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470</string>
+        /// </returns>
+        public static readonly Keccak OfAnEmptyString = InternalCompute(new byte[] { });
+
+        /// <returns>
+        ///     <string>0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347</string>
+        /// </returns>
+        public static readonly Keccak OfAnEmptySequenceRlp = InternalCompute(new byte[] { 192 });
+
+        /// <summary>
+        ///     0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421
+        /// </summary>
+        public static readonly Keccak EmptyTreeHash = InternalCompute(new byte[] { 128 });
+
+        /// <returns>
+        ///     <string>0x0000000000000000000000000000000000000000000000000000000000000000</string>
+        /// </returns>
+        public static Keccak Zero { get; } = new(new byte[Size]);
+
+        /// <summary>
+        ///     <string>0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</string>
+        /// </summary>
+        public static Keccak MaxValue { get; } = new("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+
+        public byte[] Bytes { get; }
+
         public Keccak(string hexString)
             : this(Core.Extensions.Bytes.FromHexString(hexString)) { }
 
@@ -84,28 +111,6 @@ namespace Nethermind.Core.Crypto
 
             Bytes = bytes;
         }
-
-        /// <returns>
-        ///     <string>0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470</string>
-        /// </returns>
-        public static readonly Keccak OfAnEmptyString = InternalCompute(new byte[] { });
-
-        /// <returns>
-        ///     <string>0x1dcc4de8dec75d7aab85b567b6ccd41ad312451b948a7413f0a142fd40d49347</string>
-        /// </returns>
-        public static readonly Keccak OfAnEmptySequenceRlp = InternalCompute(new byte[] {192});
-
-        /// <summary>
-        ///     0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421
-        /// </summary>
-        public static Keccak EmptyTreeHash = InternalCompute(new byte[] {128});
-
-        /// <returns>
-        ///     <string>0x0000000000000000000000000000000000000000000000000000000000000000</string>
-        /// </returns>
-        public static Keccak Zero { get; } = new(new byte[Size]);
-
-        public byte[] Bytes { get; }
 
         public override string ToString()
         {
