@@ -1,4 +1,4 @@
-﻿//  Copyright (c) 2021 Demerzel Solutions Limited
+//  Copyright (c) 2021 Demerzel Solutions Limited
 //  This file is part of the Nethermind library.
 // 
 //  The Nethermind library is free software: you can redistribute it and/or modify
@@ -55,10 +55,11 @@ namespace Nethermind.Trie
             }
         }
 
-        public TrieNode(NodeType nodeType, byte[] rlp)
+        public TrieNode(NodeType nodeType, byte[] rlp, bool isDirty = false)
         {
             NodeType = nodeType;
             FullRlp = rlp;
+            IsDirty = isDirty;
 
             _rlpStream = rlp.AsRlpStream();
         }
@@ -104,7 +105,7 @@ namespace Nethermind.Trie
 
         public Keccak? Keccak { get; internal set; }
 
-        public byte[]? FullRlp { get; private set; }
+        public byte[]? FullRlp { get; internal set; }
 
         public NodeType NodeType { get; private set; }
 
@@ -269,6 +270,7 @@ namespace Nethermind.Trie
 
                     // a hack to set internally and still verify attempts from the outside
                     // after the code is ready we should just add proper access control for methods from the outside and inside
+                    bool isDirtyActual = IsDirty;
                     IsDirty = true;
 
                     if (isExtension)
@@ -283,7 +285,7 @@ namespace Nethermind.Trie
                         Value = _rlpStream.DecodeByteArray();
                     }
 
-                    IsDirty = false;
+                    IsDirty = isDirtyActual;
                 }
                 else
                 {
